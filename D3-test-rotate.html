@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+ text {
+  fill: 'black';
+    font-family: 'Arial';
+    font-weight: bold;
+    font-size: 28px;
+  }
+
+</style>
+<body>
+
+<!-- load the d3.js library -->    
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<script>
+let height = 400
+let width = 400
+let objHeight = 100;
+let objWidth = 10
+var svg = d3.select("body")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+let rect = svg.append("rect")
+    .attr("fill", "white")
+    .attr("stroke","black")
+    .attr("stroke-width",3)
+    .attr("width", objWidth)
+    .attr("height",objHeight)
+    .attr("x",0)
+    .attr("y",0)
+    .attr("transform", "translate(" + width/2+objWidth/2 + ", " + height/2+objHeight/2 + ")rotate(0)");
+
+
+rotate(100)
+
+function rotate(rpm) {
+        if (rpm == 0) {
+            rect.interrupt()
+        } else {
+            var newAngle = rect._groups[0][0].transform.animVal[1].angle + 120;
+
+            rect.transition().duration(20000/rpm).ease(d3.easeLinear)
+                .attr("transform", "translate(" + width/2 + ", " + height/2 + ")rotate(" + newAngle + ")")
+                .on("end", function() {rotate(rpm)})
+        }
+    }
+
+
+
+</script>
+</body>
