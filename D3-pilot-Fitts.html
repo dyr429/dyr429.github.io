@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+ text {
+  fill: 'black';
+    font-family: 'Arial';
+    font-weight: bold;
+    font-size: 28px;
+  }
+
+</style>
+<body>
+
+<!-- load the d3.js library -->    
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<script>
+    // let levelDataSet = []
+    // let level1Data = {"x":[200,400], "y":[200,200]}
+    // levelDataSet.push(level1Data);
+    // let level2Data = {"x":[200,250,300,250],"y":[200,250,200,150]}
+    // levelDataSet.push(level2Data)
+    // let level3Data = {"x":[200,300,300,400,250,450,200],"y":[200,300,100,100,250,250,300]}
+    // levelDataSet.push(level3Data)
+    let levels = [800,600,400,200,100,50]
+    let level = 0;
+    let currentX = 200;
+    let currentY = 200;
+    let distance = 50;
+    function nextX(){
+        let offsetX = 50 - Math.random()*100
+        if(currentX+offsetX>50 && currentX+offsetX<750)
+            currentX = currentX + offsetX
+        else
+            currentX = currentX - offsetX
+        return currentX
+    }
+    function nextY(){
+        let offsetY = 50 - Math.random()*100
+        if(currentY+offsetY>50 && currentY+offsetY<550)
+            currentY = currentY + offsetY
+        else
+            currentY = currentY - offsetY
+        return currentY
+
+    }
+
+    let colors = ["red", "green","blue","white"]
+
+    let svg = d3.select("body")
+            .append("svg")
+            .attr("width", 800)
+            .attr("height", 600);
+
+
+    let timeCircle = svg.append("circle")
+        .attr("fill", "white")
+        .attr("stroke","black")
+        .attr("stroke-width",3)
+        .attr("r", 20)
+    let index =-1
+    function addTransition(){
+        // let datalen = levelDataSet[level]["x"].length;
+        //  index++;
+         timeCircle.transition()
+            .ease(d3.easeLinear)
+            .duration(levels[level])
+            .attr('cx', nextX())
+            .attr('cy', nextY())
+            .on("end", addTransition);
+    }
+    addTransition()
+
+
+    d3.selectAll("circle")
+          .on("mousedown", function(){
+              d3.select(this)
+                .attr("fill", colors[level%4]);
+          console.log("hit")
+          level++;
+          });
+
+
+</script>
+</body>
