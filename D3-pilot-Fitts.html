@@ -1,36 +1,81 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="styles.css">
 <style>
 
  text {
-  fill: 'black';
+    fill: 'black';
     font-family: 'Arial';
     font-weight: bold;
     font-size: 28px;
   }
 
+
+ h1{
+    text-align: center;
+ }
+
+ h2{
+    text-align: center;
+ }
+
+ h4{
+    text-align: center
+ }
+
+ svg{
+    border: 2px solid black;
+    margin: auto;
+    display: block;
+ }
+
 </style>
 <body>
 
-<!-- load the d3.js library -->    
+    <h1>Test your FPS game aming skill</h1>
+    <h4 id="status">current level: 1 </h4>
+
+
+<div id="instruciton" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <h2>Instruction</h2>
+    <p>Click the circle, there are 7 levels. For each level, you have only one chance on each level.</p>
+    <p>enter your code:</p> 
+    <input type="text" name="code" id="inputcode"/>
+    <button onclick="checkcode()">OK</button>
+  </div>
+</div>
+
+<div id="endgame" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <h2>Thank you </h2>
+    <p>You have completed this game, here is the verification code for Mechenical Turk</p>
+    <p>your code is : 5678</p> 
+  </div>
+</div>
+
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
 <script>
-    // let levelDataSet = []
-    // let level1Data = {"x":[200,400], "y":[200,200]}
-    // levelDataSet.push(level1Data);
-    // let level2Data = {"x":[200,250,300,250],"y":[200,250,200,150]}
-    // levelDataSet.push(level2Data)
-    // let level3Data = {"x":[200,300,300,400,250,450,200],"y":[200,300,100,100,250,250,300]}
-    // levelDataSet.push(level3Data)
-    let levels = [800,600,400,200,100,50]
+    let resultHit = [];
+    let levelResult = {};
+    let hitTimes = 0;
+
+
+    let WIDTH = window.innerWidth;
+    let HEIGHT = window.innerHeight;
+    let levels = [700,600,500,300,200,150,100]
     let level = 0;
-    let currentX = 200;
-    let currentY = 200;
+    let currentX = WIDTH/2;
+    let currentY = HEIGHT/2;
     let distance = 50;
     function nextX(){
         let offsetX = 50 - Math.random()*100
-        if(currentX+offsetX>50 && currentX+offsetX<750)
+        if(currentX+offsetX>50 && currentX+offsetX<WIDTH-200)
             currentX = currentX + offsetX
         else
             currentX = currentX - offsetX
@@ -38,7 +83,7 @@
     }
     function nextY(){
         let offsetY = 50 - Math.random()*100
-        if(currentY+offsetY>50 && currentY+offsetY<550)
+        if(currentY+offsetY>50 && currentY+offsetY<HEIGHT-200)
             currentY = currentY + offsetY
         else
             currentY = currentY - offsetY
@@ -46,16 +91,16 @@
 
     }
 
-    let colors = ["red", "green","blue","white"]
+    let colors = ["red", "green","blue","yellow"]
 
     let svg = d3.select("body")
             .append("svg")
-            .attr("width", 800)
-            .attr("height", 600);
+            .attr("width", WIDTH-150)
+            .attr("height", HEIGHT-150);
 
 
     let timeCircle = svg.append("circle")
-        .attr("fill", "white")
+        .attr("fill", "yellow")
         .attr("stroke","black")
         .attr("stroke-width",3)
         .attr("r", 20)
@@ -72,14 +117,53 @@
     }
     addTransition()
 
+    let endgamemModal = document.getElementById("endgame");
 
     d3.selectAll("circle")
           .on("mousedown", function(){
-              d3.select(this)
+            if(level === levels.length-1){
+                resultHit.push(hitTimes);
+                endgamemModal.style.display = "block";
+                d3.select("svg").remove()
+            }
+            else{
+                let statusString = "current level: " + (level+2);
+                document.getElementById("status").innerHTML = statusString
+                d3.select(this)
                 .attr("fill", colors[level%4]);
-          console.log("hit")
+                currentX = Math.random()*(WIDTH-200);
+                currentY = Math.random()*(HEIGHT-200);
+                resultHit.push(hitTimes)
+                hitTimes = 0;
+                console.log("hit")
+                
+            }
+             
           level++;
-          });
+    });
+
+    d3.selectAll("svg")
+          .on("mousedown", function(){
+            hitTimes++;
+    });
+
+
+
+// Get the modal
+let instructionModal = document.getElementById("instruciton");
+instructionModal.style.display = "block";
+
+
+function checkcode(){
+    let code = document.getElementById("inputcode").value
+    if(code === "1234"){
+        instructionModal.style.display = "none";
+    }else{
+        alert("wrong code")
+    }
+}
+
+    
 
 
 </script>
