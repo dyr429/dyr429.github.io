@@ -158,7 +158,10 @@
     d3.selectAll("circle")
           .on("mousedown", function(){
             if(level === levels.length-2){
+                let duration = new Date() - timeStart;
+                timeStart = new Date();
                 resultHit.push(hitTimes);
+                resultTime.push(duration);
                 result.hits = resultHit;
                 result.duration = resultTime;
                 result.expcode = expCode;
