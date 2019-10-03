@@ -104,22 +104,24 @@
 
     let WIDTH = window.innerWidth;
     let HEIGHT = window.innerHeight;
+    let SVGWIDTH = WIDTH -150;
+    let SVGHEIGHT = HEIGHT -150
     let levels = [700,600,500,300,200,150,100,20]
     let level = 0;
     let currentX = WIDTH/2;
     let currentY = HEIGHT/2;
-    let distance = 50;
+    let radius = 50;
     function nextX(){
-        let offsetX = 50 - Math.random()*100
-        if(currentX+offsetX>50 && currentX+offsetX<WIDTH-200)
+        let offsetX = radius - Math.random()*radius*2
+        if(currentX+offsetX>radius && currentX+offsetX<SVGWIDTH-radius)
             currentX = currentX + offsetX
         else
             currentX = currentX - offsetX
         return currentX
     }
     function nextY(){
-        let offsetY = 50 - Math.random()*100
-        if(currentY+offsetY>50 && currentY+offsetY<HEIGHT-200)
+        let offsetY = radius - Math.random()*radius*2
+        if(currentY+offsetY>radius && currentY+offsetY<SVGHEIGHT-radius)
             currentY = currentY + offsetY
         else
             currentY = currentY - offsetY
@@ -131,8 +133,8 @@
 
     let svg = d3.select("body")
             .append("svg")
-            .attr("width", WIDTH-150)
-            .attr("height", HEIGHT-150);
+            .attr("width", SVGWIDTH)
+            .attr("height", SVGHEIGHT);
 
 
     let timeCircle = svg.append("circle")
@@ -174,8 +176,18 @@
                 document.getElementById("status").innerHTML = statusString
                 d3.select(this)
                 .attr("fill", colors[level%4]);
-                currentX = Math.random()*(WIDTH-200);
-                currentY = Math.random()*(HEIGHT-200);
+
+
+                currentX = Math.random()*(SVGWIDTH-radius) + radius;
+                currentY = Math.random()*(SVGHEIGHT-radius) + radius;;
+                 timeCircle.transition()
+                    .ease(d3.easeLinear)
+                    .duration(20)
+                    .on("end", addTransition)
+                    .attr('cx', currentX)
+                    .attr('cy', currentY)
+
+
                 hitTimes = 0;
                 console.log("hit")
             }
@@ -185,8 +197,15 @@
                 let statusString = "current level: " + (level+1);
                 document.getElementById("status").innerHTML = statusString
                 d3.select(this).attr("fill", colors[level%4]);
-                currentX = Math.random()*(WIDTH-250)+50;
-                currentY = Math.random()*(HEIGHT-250)+50;
+                currentX = Math.random()*(SVGWIDTH-radius) + radius;;
+                currentY = Math.random()*(SVGHEIGHT-radius) + radius;;
+                 timeCircle.transition()
+                    .ease(d3.easeLinear)
+                    .duration(20)
+                    .on("end", addTransition)
+                    .attr('cx', currentX)
+                    .attr('cy', currentY)
+
                 resultHit.push(hitTimes);
                 resultTime.push(duration);
                 hitTimes = 0;
