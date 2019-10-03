@@ -3,35 +3,6 @@
 <link rel="stylesheet" type="text/css" href="styles.css">
 <script src="https://www.gstatic.com/firebasejs/7.0.0/firebase.js"></script>
 
-<style>
-
- text {
-    fill: 'black';
-    font-family: 'Arial';
-    font-weight: bold;
-    font-size: 28px;
-  }
-
-
- h1{
-    text-align: center;
- }
-
- h2{
-    text-align: center;
- }
-
- h4{
-    text-align: center
- }
-
- svg{
-    border: 2px solid black;
-    margin: auto;
-    display: block;
- }
-
-</style>
 <body>
 
     <h1>Test your FPS game aming skill</h1>
@@ -83,9 +54,11 @@
     let database = firebase.database();
 
     function pushData(expid,data){
-
         database.ref().push({
-            exp: data
+            expcode: data.expcode,
+            hits: data.hits,
+            duration: data.duration,
+            distance: data.distance,
         });
     }
 
@@ -96,22 +69,24 @@
     let result = {}
     let resultHit = [];
     let resultTime = [];
-    let levelResult = {};
+    let resultDistance = [];
+    let levelDistance = [];
     let hitTimes = 0;
     let expCode;
     let timeStart;
     let timeEnd;
+    let duration;
 
 
-    let WIDTH = window.innerWidth;
-    let HEIGHT = window.innerHeight;
-    let SVGWIDTH = WIDTH -150;
-    let SVGHEIGHT = HEIGHT -150
-    let levels = [700,600,500,300,200,150,100,20]
+    const WIDTH = window.innerWidth;
+    const HEIGHT = window.innerHeight;
+    const SVGWIDTH = WIDTH -150;
+    const SVGHEIGHT = HEIGHT -150
+    const levels = [700,600,500,400,300,200,100,20]
     let level = 0;
     let currentX = WIDTH/2;
     let currentY = HEIGHT/2;
-    let radius = 50;
+    const radius = 20;
     function nextX(){
         let offsetX = radius - Math.random()*radius*2
         if(currentX+offsetX>radius && currentX+offsetX<SVGWIDTH-radius)
@@ -142,7 +117,7 @@
         .attr("fill", "yellow")
         .attr("stroke","black")
         .attr("stroke-width",3)
-        .attr("r", 20)
+        .attr("r", radius)
     let index =-1
     function addTransition(){
         // let datalen = levelDataSet[level]["x"].length;
@@ -159,88 +134,98 @@
     let endgamemModal = document.getElementById("endgame");
 
     d3.selectAll("circle")
-          .on("mousedown", function(){
-            if(level === levels.length-2){
-                let duration = new Date() - timeStart;
-                timeStart = new Date();
+          .on("mousedown", function(){  
+                    console.log("circle listen")
+
+    
+            //update level text
+            let statusString = "current level: " + (level+1);
+            document.getElementById("status").innerHTML = statusString
+
+            //change color and postion of circle for next level
+            d3.select(this).attr("fill", colors[level%4]);
+            currentX = Math.random()*(SVGWIDTH-radius) + radius;;
+            currentY = Math.random()*(SVGHEIGHT-radius) + radius;;
+             timeCircle.transition()
+                .ease(d3.easeLinear)
+                .duration(20)
+                .on("end", addTransition)
+                .attr('cx', currentX)
+                .attr('cy', currentY)
+
+            // form data for each dimention
+
+            if(level !== 0){
+                //calculate duration
+                duration = new Date() - timeStart;
+                // add level distance
+                 let mousecoordinates= d3.mouse(this);
+                let mx = mousecoordinates[0];
+                let my = mousecoordinates[1];
+                
+                let cx = timeCircle.attr("cx");
+                let cy = timeCircle.attr("cy");
+                let distance = dis(cx,cy,mx,my);
+                levelDistance.push(distance);
+                resultDistance.push([...levelDistance]);
+                levelDistance = [];
                 resultHit.push(hitTimes);
                 resultTime.push(duration);
+            }
+
+            
+            if(level === levels.length-2){
                 result.hits = resultHit;
                 result.duration = resultTime;
                 result.expcode = expCode;
+                result.distance = resultDistance;
                 pushData(expCode,result);
                 endgamemModal.style.display = "block";
             }
-            else if(level === 0){
-                timeStart = new Date();
-                let statusString = "current level: " + (level+1);
-                document.getElementById("status").innerHTML = statusString
-                d3.select(this)
-                .attr("fill", colors[level%4]);
 
-
-                currentX = Math.random()*(SVGWIDTH-radius) + radius;
-                currentY = Math.random()*(SVGHEIGHT-radius) + radius;;
-                 timeCircle.transition()
-                    .ease(d3.easeLinear)
-                    .duration(20)
-                    .on("end", addTransition)
-                    .attr('cx', currentX)
-                    .attr('cy', currentY)
-
-
-                hitTimes = 0;
-                console.log("hit")
-            }
-            else{
-                let duration = new Date() - timeStart;
-                timeStart = new Date();
-                let statusString = "current level: " + (level+1);
-                document.getElementById("status").innerHTML = statusString
-                d3.select(this).attr("fill", colors[level%4]);
-                currentX = Math.random()*(SVGWIDTH-radius) + radius;;
-                currentY = Math.random()*(SVGHEIGHT-radius) + radius;;
-                 timeCircle.transition()
-                    .ease(d3.easeLinear)
-                    .duration(20)
-                    .on("end", addTransition)
-                    .attr('cx', currentX)
-                    .attr('cy', currentY)
-
-                resultHit.push(hitTimes);
-                resultTime.push(duration);
-                hitTimes = 0;
-                console.log("hit")
-                
-            }
-             
-          level++;
+            //reset params
+            hitTimes = 0;
+            timeStart = new Date();
+            level++;
+            d3.event.stopPropagation();
     });
 
     d3.selectAll("svg")
           .on("mousedown", function(){
+            console.log("svg listen")
             hitTimes++;
+            // calculate distance
+            let mousecoordinates= d3.mouse(this);
+            let mx = mousecoordinates[0];
+            let my = mousecoordinates[1];
+            
+            let cx = timeCircle.attr("cx");
+            let cy = timeCircle.attr("cy");
+            let distance = dis(cx,cy,mx,my);
+            levelDistance.push(distance);
     });
 
 
 
-// Get the modal
-let instructionModal = document.getElementById("instruciton");
-instructionModal.style.display = "block";
+    // Get the modal
+    let instructionModal = document.getElementById("instruciton");
+    instructionModal.style.display = "block";
 
 
-function checkcode(){
-    let code = document.getElementById("inputcode").value
-    if(code % 100 === 0){
-        expCode = code;
-        instructionModal.style.display = "none";
-    }else{
-        alert("wrong code")
+    function checkcode(){
+        let code = document.getElementById("inputcode").value
+        if(code % 100 === 0){
+            expCode = code;
+            instructionModal.style.display = "none";
+        }else{
+            alert("wrong code")
+        }
     }
-}
 
-    
+    function dis(x1,y1,x2,y2){
+        return Math.round(Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)));
 
+    }
 
 </script>
 </body>

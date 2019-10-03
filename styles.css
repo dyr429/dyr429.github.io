@@ -37,3 +37,30 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+
+text {
+    fill: 'black';
+    font-family: 'Arial';
+    font-weight: bold;
+    font-size: 28px;
+  }
+
+
+ h1{
+    text-align: center;
+ }
+
+ h2{
+    text-align: center;
+ }
+
+ h4{
+    text-align: center
+ }
+
+ svg{
+    border: 2px solid black;
+    margin: auto;
+    display: block;
+ }
