@@ -28,6 +28,7 @@
     <h2>Thank you </h2>
     <p>You have completed this game, here is the verification code for Mechenical Turk</p>
     <p>your code is : 5678</p> 
+    <p id="result"></p>
     <button onclick="javascript:history.go(-1)">OK</button>
   </div>
 </div>
@@ -76,13 +77,14 @@
     let timeStart;
     let timeEnd;
     let duration;
+    let lastLevelClick = 0
 
 
     const WIDTH = window.innerWidth;
     const HEIGHT = window.innerHeight;
     const SVGWIDTH = WIDTH -150;
     const SVGHEIGHT = HEIGHT -150
-    const levels = [700,600,500,400,300,200,100,20]
+    const levels = [600,500,400,300,200,100,50,20]
     let level = 0;
     let currentX = WIDTH/2;
     let currentY = HEIGHT/2;
@@ -181,6 +183,9 @@
                 result.distance = resultDistance;
                 pushData(expCode,result);
                 endgamemModal.style.display = "block";
+                let totalTime = resultTime.reduce((v,s)=>{return v+s});
+                let resultString = "your total time is: " + totalTime/1000 +"s." "Average time is 15.00 s";
+                document.getElementById("result").innerHTML = resultString;
             }
 
             //reset params
@@ -192,17 +197,52 @@
 
     d3.selectAll("svg")
           .on("mousedown", function(){
-            console.log("svg listen")
-            hitTimes++;
-            // calculate distance
-            let mousecoordinates= d3.mouse(this);
-            let mx = mousecoordinates[0];
-            let my = mousecoordinates[1];
+            console.log(level)
+            console.log(lastLevelClick)
+            if(level === levels.length-2){
+                lastLevelClick++;
+            }
+            if(lastLevelClick >= 30){
+ //calculate duration
+                duration = new Date() - timeStart;
+                // add level distance
+                 let mousecoordinates= d3.mouse(this);
+                let mx = mousecoordinates[0];
+                let my = mousecoordinates[1];
+                
+                let cx = timeCircle.attr("cx");
+                let cy = timeCircle.attr("cy");
+                let distance = dis(cx,cy,mx,my);
+                levelDistance.push(distance);
+                resultDistance.push([...levelDistance]);
+                levelDistance = [];
+                resultHit.push(hitTimes);
+                resultTime.push(duration);
+
+                result.hits = resultHit;
+                result.duration = resultTime;
+                result.expcode = expCode;
+                result.distance = resultDistance;
+                pushData(expCode,result);
+                let totalTime = resultTime.reduce((v,s)=>{return v+s});
+                let resultString = "your total time is: " + totalTime/1000 +"s";
+                document.getElementById("result").innerHTML = resultString;
+                endgamemModal.style.display = "block";
+            }
+            else{
+                console.log("svg listen")
+                hitTimes++;
+                // calculate distance
+                let mousecoordinates= d3.mouse(this);
+                let mx = mousecoordinates[0];
+                let my = mousecoordinates[1];
+                
+                let cx = timeCircle.attr("cx");
+                let cy = timeCircle.attr("cy");
+                let distance = dis(cx,cy,mx,my);
+                levelDistance.push(distance);
+            }
             
-            let cx = timeCircle.attr("cx");
-            let cy = timeCircle.attr("cy");
-            let distance = dis(cx,cy,mx,my);
-            levelDistance.push(distance);
     });
 
 
