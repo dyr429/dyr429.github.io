@@ -268,12 +268,10 @@
 
     function checkCode(){
         let code = document.getElementById("inputcode").value
-        if(code % 100 === 0){
-            turkID = code;
-            instructionModal.style.display = "none";
-        }else{
-            alert("wrong code")
-        }
+
+        turkID = code;
+        instructionModal.style.display = "none";
+
         repeat = 0;
     }
 
